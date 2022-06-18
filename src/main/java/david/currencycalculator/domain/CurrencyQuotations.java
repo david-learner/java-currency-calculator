@@ -2,21 +2,27 @@ package david.currencycalculator.domain;
 
 import java.math.BigDecimal;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import lombok.Getter;
 
+@Getter
 public class CurrencyQuotations {
 
-    private CurrencyCountryCode currencyCountryCode;
+    private CurrencyCountryCode sourceCountryCode;
     private Map<CurrencyCountryCode, BigDecimal> quotations;
+    private Set<CurrencyCountryCode> targetCountryCodes;
 
-    private CurrencyQuotations(CurrencyCountryCode currencyCountryCode,
+    private CurrencyQuotations(CurrencyCountryCode sourceCountryCode,
                                Map<CurrencyCountryCode, BigDecimal> quotations) {
-        this.currencyCountryCode = currencyCountryCode;
+        this.sourceCountryCode = sourceCountryCode;
         this.quotations = quotations;
+        this.targetCountryCodes = this.quotations.keySet();
     }
 
     public static CurrencyQuotations of(String source, Map<String, Object> quotes) {
         Map<CurrencyCountryCode, BigDecimal> quotations = new ConcurrentHashMap<>();
+
         quotes.forEach((quotationCode, rate) -> {
             quotationCode = quotationCodeNormalize(source, quotationCode);
             quotations.put(CurrencyCountryCode.valueOf(quotationCode),
@@ -31,16 +37,5 @@ public class CurrencyQuotations {
             return quotationCode.replace(source, "");
         }
         return quotationCode;
-    }
-
-    public BigDecimal get(String termsName) {
-        validateExistence(termsName);
-        return this.quotations.get(termsName);
-    }
-
-    public void validateExistence(String termsName) {
-        if (!this.quotations.containsKey(CurrencyCountryCode.valueOf(termsName))) {
-            throw new IllegalArgumentException(termsName + "은 존재하지 않는 terms 입니다.");
-        }
     }
 }
