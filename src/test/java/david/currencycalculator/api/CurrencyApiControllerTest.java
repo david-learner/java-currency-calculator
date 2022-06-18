@@ -2,7 +2,7 @@ package david.currencycalculator.api;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
-import david.currencycalculator.dto.CurrencyLayerApiResponse;
+import david.currencycalculator.dto.ApiCurrencyLayerResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpEntity;
@@ -22,13 +22,13 @@ public class CurrencyApiControllerTest {
         HttpEntity httpEntity = new HttpEntity(httpHeaders);
         String url = "https://api.apilayer.com/currency_data/live?source=USD&currencies=KRW%2CJPY%2CPHP";
 
-        ResponseEntity<CurrencyLayerApiResponse> response = restTemplate.exchange(url, HttpMethod.GET, httpEntity,
-                CurrencyLayerApiResponse.class);
+        ResponseEntity<ApiCurrencyLayerResponse> response = restTemplate.exchange(url, HttpMethod.GET, httpEntity,
+                ApiCurrencyLayerResponse.class);
 
-        CurrencyLayerApiResponse currencyLayerApiResponse = response.getBody();
-        assertThat(currencyLayerApiResponse.isSuccess()).isTrue();
-        assertThat(currencyLayerApiResponse.hasQuote("USDKRW")).isTrue();
-        assertThat(currencyLayerApiResponse.hasQuote("USDJPY")).isTrue();
-        assertThat(currencyLayerApiResponse.hasQuote("USDPHP")).isTrue();
+        ApiCurrencyLayerResponse apiCurrencyLayerResponse = response.getBody();
+        assertThat(apiCurrencyLayerResponse.isSuccess()).isTrue();
+        assertThat(apiCurrencyLayerResponse.hasQuote("USDKRW")).isTrue();
+        assertThat(apiCurrencyLayerResponse.hasQuote("USDJPY")).isTrue();
+        assertThat(apiCurrencyLayerResponse.hasQuote("USDPHP")).isTrue();
     }
 }

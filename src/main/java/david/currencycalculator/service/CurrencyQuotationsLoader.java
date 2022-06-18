@@ -1,6 +1,6 @@
 package david.currencycalculator.service;
 
-import david.currencycalculator.dto.CurrencyLayerApiResponse;
+import david.currencycalculator.dto.ApiCurrencyLayerResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -18,12 +18,12 @@ public class CurrencyQuotationsLoader {
     @Value("${currency.layer.currency_quotation_list_request_url}")
     private String currencyQuotationListRequestUrl;
 
-    public CurrencyLayerApiResponse load() {
+    public ApiCurrencyLayerResponse load() {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add(API_KEY_HEADER_NAME, apiKeyHeaderValue);
         HttpEntity httpEntity = new HttpEntity(httpHeaders);
 
         return restTemplate.exchange(currencyQuotationListRequestUrl, HttpMethod.GET, httpEntity,
-                CurrencyLayerApiResponse.class).getBody();
+                ApiCurrencyLayerResponse.class).getBody();
     }
 }

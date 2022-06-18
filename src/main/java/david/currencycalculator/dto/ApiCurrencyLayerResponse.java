@@ -2,7 +2,7 @@ package david.currencycalculator.dto;
 
 import java.util.Map;
 
-public class CurrencyLayerApiResponse {
+public class ApiCurrencyLayerResponse {
 
     private boolean success;
     private long timestamp;
