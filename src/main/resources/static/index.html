@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Currency Calculator</title>
+</head>
+<body>
+<h1>환율 계산기</h1>
+<div>송금국가: 미국(USD)</div>
+<div>수취국가: <select name="target-countries" id="target-countries"></select></div>
+<div>환율: <span id="rate"></span></div>
+<div>송금액: <input type="text" id="remittance"></div>
+<div>
+    <button onclick="calculateAmountReceived()">Submit</button>
+</div>
+<div id="amount-received-comment" style="display: none">수취금액은<span id="amount-received"></span>입니다.</div>
+</body>
+<script>
+    const codeForKoreanMap = new Map();
+    const targetCountriesElement = document.querySelector("#target-countries");
+
+    window.onload = function () {
+        init();
+    }
+
+    async function init() {
+        initCodeForKoreanMap();
+        const currencies = await loadCurrencies();
+        addTargetCountries(currencies.quotations);
+        updateRate()
+        targetCountriesElement.addEventListener('change', updateRate);
+    }
+
+    function initCodeForKoreanMap() {
+        codeForKoreanMap.set("KRW", "한국(KRW)");
+        codeForKoreanMap.set("JPY", "일본(JPY)");
+        codeForKoreanMap.set("PHP", "필리핀(PHP)");
+    }
+
+    async function loadCurrencies() {
+        const requestApiCurrencies = "/api/currencies";
+        const response = await fetch(requestApiCurrencies, {
+            method: 'get',
+        }).catch(error => alert(error));
+
+        return response.json();
+    }
+
+    function addTargetCountries(targetCountries) {
+        for (const [key, value] of Object.entries(targetCountries)) {
+            createOption(targetCountriesElement, key, value);
+        }
+
+        function createOption(selectElement, code, rate) {
+            const option = document.createElement("option");
+            option.setAttribute("value", code);
+            option.dataset.rate = rate.toFixed(2);
+            option.text = codeForKoreanMap.get(code);
+            selectElement.append(option)
+        }
+    }
+
+    function updateRate() {
+        const PER_USD = "/USD";
+        const WHITESPACE = " ";
+        let rateElement = document.querySelector("#rate");
+        let selectedOption = getSelectedTargetCountry();
+        rateElement.innerHTML = commify(selectedOption.dataset.rate) + WHITESPACE + selectedOption.value + PER_USD;
+    }
+
+    function calculateAmountReceived() {
+        doVisible();
+        let rate = getSelectedTargetCountry().dataset.rate;
+        let remittance = document.querySelector("#remittance").value;
+        let amountReceived = rate * remittance;
+        document.querySelector("#amount-received").innerHTML = commify(amountReceived.toFixed(2));
+
+        function doVisible() {
+            let amountReceivedComment = document.querySelector("#amount-received-comment");
+            amountReceivedComment.style.display = "";
+        }
+    }
+
+    function getSelectedTargetCountry() {
+        return targetCountriesElement.options[targetCountriesElement.selectedIndex];
+    }
+
+    function commify(n) {
+        let parts = n.toString().split(".");
+        const numberPart = parts[0];
+        const decimalPart = parts[1];
+        const thousands = /\B(?=(\d{3})+(?!\d))/g;
+        return numberPart.replace(thousands, ",") + (decimalPart ? "." + decimalPart : "");
+    }
+</script>
+</html>
