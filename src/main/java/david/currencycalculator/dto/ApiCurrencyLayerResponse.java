@@ -5,16 +5,11 @@ import java.util.Map;
 public class ApiCurrencyLayerResponse {
 
     private boolean success;
-    private long timestamp;
     private String source;
     private Map<String, Object> quotes;
 
     public boolean isSuccess() {
         return success;
-    }
-
-    public long getTimestamp() {
-        return timestamp;
     }
 
     public String getSource() {
