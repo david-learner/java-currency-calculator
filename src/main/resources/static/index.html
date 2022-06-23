@@ -9,7 +9,7 @@
 <div>송금국가: 미국(USD)</div>
 <div>수취국가: <select name="target-countries" id="target-countries"></select></div>
 <div>환율: <span id="rate"></span></div>
-<div>송금액: <input type="text" id="remittance"></div>
+<div>송금액: <input type="number" id="remittance"> USD</div>
 <div>
     <button onclick="calculateAmountReceived()">Submit</button>
 </div>
@@ -18,6 +18,7 @@
 <script>
     const codeForKoreanMap = new Map();
     const targetCountriesElement = document.querySelector("#target-countries");
+    const WHITESPACE = ' ';
 
     window.onload = function () {
         init();
@@ -62,23 +63,47 @@
 
     function updateRate() {
         const PER_USD = "/USD";
-        const WHITESPACE = " ";
+
         let rateElement = document.querySelector("#rate");
         let selectedOption = getSelectedTargetCountry();
         rateElement.innerHTML = commify(selectedOption.dataset.rate) + WHITESPACE + selectedOption.value + PER_USD;
     }
 
+    function validateRemittance() {
+        const NOT_VALID_REMITTANCE = "송금액이 바르지 않습니다.";
+        let remittance = parseFloat(getRemittanceValue());
+        if (isNaN(remittance)) {
+            throw new Error(NOT_VALID_REMITTANCE);
+        }
+        if (remittance < 0 || remittance > 10000) {
+            throw new Error(NOT_VALID_REMITTANCE);
+        }
+    }
+
     function calculateAmountReceived() {
+        try {
+            validateRemittance();
+        } catch (e) {
+            alert(e);
+            return;
+        }
+
         doVisible();
-        let rate = getSelectedTargetCountry().dataset.rate;
-        let remittance = document.querySelector("#remittance").value;
-        let amountReceived = rate * remittance;
-        document.querySelector("#amount-received").innerHTML = commify(amountReceived.toFixed(2));
+        const rate = getSelectedTargetCountry().dataset.rate;
+        let amountReceived = rate * getRemittanceValue();
+        amountReceived = commify(amountReceived.toFixed(2));
+        const selectCountryCode = getSelectedTargetCountry().value;
+        const amountReceivedWithCode = ` ${amountReceived} ${selectCountryCode}`;
+        document.querySelector("#amount-received").innerHTML = amountReceivedWithCode;
 
         function doVisible() {
             let amountReceivedComment = document.querySelector("#amount-received-comment");
             amountReceivedComment.style.display = "";
         }
+    }
+
+    function getRemittanceValue() {
+        return document.querySelector("#remittance").value;
     }
 
     function getSelectedTargetCountry() {
